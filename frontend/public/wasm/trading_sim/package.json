@@ -1,0 +1,15 @@
+{
+  "name": "trading_sim",
+  "type": "module",
+  "version": "0.1.0",
+  "files": [
+    "trading_sim_bg.wasm",
+    "trading_sim.js",
+    "trading_sim.d.ts"
+  ],
+  "main": "trading_sim.js",
+  "types": "trading_sim.d.ts",
+  "sideEffects": [
+    "./snippets/*"
+  ]
+}
