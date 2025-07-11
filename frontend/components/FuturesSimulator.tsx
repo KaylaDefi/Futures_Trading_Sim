@@ -51,7 +51,20 @@ export default function FuturesSimulator() {
             <input
               type="number"
               value={entryPrice ?? ""}
-  onChange={(e) => setEntryPrice(parseFloat(e.target.value))}
+              onChange={(e) => {
+                const value = e.target.value;
+                if (value === "") {
+                  // Reset to live price after short delay
+                  setTimeout(() => {
+                    if (livePrice !== null) {
+                      setEntryPrice(livePrice);
+                    }
+                  }, 500);
+                } else {
+                  const parsed = parseFloat(value);
+                  if (!isNaN(parsed)) setEntryPrice(parsed);
+                }
+              }}
               className="w-full p-2 border rounded text-gray-900"
             />
           </div>
