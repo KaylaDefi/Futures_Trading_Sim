@@ -19,14 +19,26 @@ export default function FuturesSimulator() {
 
   useEffect(() => {
     const fetchPrice = async () => {
-      const res = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd");
-      const data = await res.json();
-      const price = data.bitcoin.usd;
-      setLivePrice(price);
+      try {
+        const res = await fetch("/api/price");
+        if (!res.ok) throw new Error(`HTTP error ${res.status}`);
+        const data = await res.json();
+        const price = data.bitcoin.usd;
+
+        console.log("Fetched price:", price);
+        setLivePrice((prev) => {
+          if (prev !== price) {
+            return price; 
+          }
+          return prev;
+        });
+        } catch (err) {
+        console.error("Failed to fetch BTC price:", err);
+      }
     };
   
     fetchPrice(); 
-    const interval = setInterval(fetchPrice, 10000); 
+    const interval = setInterval(fetchPrice, 20000); 
     return () => clearInterval(interval); 
   }, []);
 
