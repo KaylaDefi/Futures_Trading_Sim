@@ -1,6 +1,6 @@
 Currently under development.
 
-I built a crypto futures trading simulator that calculates the liquidation price based on the user’s entry price, leverage, and position type (long or short). The core logic is written in Rust for speed and reliability, and it's compiled to WebAssembly (WASM) so it runs directly in the browser. My Next.js + TypeScript frontend loads the WASM module, takes user inputs, and displays the calculated liquidation price in real time.
+A crypto futures trading simulator that calculates the liquidation price based on the user’s entry price, leverage, and position type (long or short). The core logic is written in Rust for speed and reliability, and it's compiled to WebAssembly (WASM) so it runs directly in the browser. My Next.js + TypeScript frontend loads the WASM module, takes user inputs, and displays the calculated liquidation price in real time.
 
 Breakdown:
 
