@@ -1,21 +1,38 @@
 "use client";
 
 import React from "react";
-import { useAccount } from "../context/AccountContext";
 import { useWallet } from "../context/WalletContext";
 
 const ConnectWallet: React.FC = () => {
-  const { walletAddress, connectWallet, isConnected } = useWallet();
-  const { balance: walletBalance } = useAccount();
+  const {
+    walletAddress,
+    connectWallet,
+    disconnectWallet,
+    isConnected,
+    balance,
+    network,
+  } = useWallet();
 
   const shorten = (addr: string) => addr.slice(0, 6) + "..." + addr.slice(-4);
 
   return (
     <div className="mb-4">
       {isConnected ? (
-        <p className="text-green-600 font-medium break-words">
-          Connected: {shorten(walletAddress!)} – Balance: {walletBalance.toFixed(2)}
-        </p>
+        <>
+          <p className="text-green-600 font-medium break-words">
+            Connected: {walletAddress ? shorten(walletAddress) : "Unknown"} on{" "}
+            {network ?? "Unknown"}
+          </p>
+          <p className="text-sm text-gray-600">
+            Balance: {balance.toFixed(4)} ETH
+          </p>
+          <button
+            onClick={disconnectWallet}
+            className="mt-2 text-sm underline text-red-500"
+          >
+            Disconnect
+          </button>
+        </>
       ) : (
         <button
           onClick={connectWallet}

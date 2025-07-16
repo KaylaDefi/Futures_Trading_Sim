@@ -5,6 +5,7 @@ import { useAccount } from "../context/AccountContext";
 import ConnectWallet from "./ConnectWallet";
 import PriceDisplay from "./PriceDisplay";
 import TradeForm from "./TradeForm";
+import { useWallet } from "context/WalletContext";
 
 type PositionType = "LONG" | "SHORT";
 
@@ -12,7 +13,7 @@ export default function FuturesSimulatorApp() {
   const [entryPrice, setEntryPrice] = useState<number | null>(null);
   const [livePrice, setLivePrice] = useState<number | null>(null);
   const [leverage, setLeverage] = useState(3);
-  const { balance: walletBalance } = useAccount(); // ✅ use global balance
+  const { balance: walletBalance } = useWallet(); 
   const [positionType, setPositionType] = useState<PositionType>("SHORT");
   const [liquidationPrice, setLiquidationPrice] = useState<number | null>(null);
   const [positionSize, setPositionSize] = useState<number | null>(null);
