@@ -1,24 +1,18 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ethers } from "ethers";
+import { useAccount } from "../context/AccountContext";
 import ConnectWallet from "./ConnectWallet";
 import PriceDisplay from "./PriceDisplay";
 import TradeForm from "./TradeForm";
 
 type PositionType = "LONG" | "SHORT";
 
-declare global {
-  interface Window {
-    ethereum?: any;
-  }
-}
-
 export default function FuturesSimulatorApp() {
   const [entryPrice, setEntryPrice] = useState<number | null>(null);
   const [livePrice, setLivePrice] = useState<number | null>(null);
   const [leverage, setLeverage] = useState(3);
-  const [walletBalance, setWalletBalance] = useState<number>(0);
+  const { balance: walletBalance } = useAccount(); // ✅ use global balance
   const [positionType, setPositionType] = useState<PositionType>("SHORT");
   const [liquidationPrice, setLiquidationPrice] = useState<number | null>(null);
   const [positionSize, setPositionSize] = useState<number | null>(null);
@@ -61,33 +55,33 @@ export default function FuturesSimulatorApp() {
   }, [livePrice]);
 
   return (
-    <div className="grid place-items-center min-h-screen bg-gray-100 p-4">
-      <div className="bg-gray-50 shadow-xl rounded-2xl p-6 max-w-md w-full">
-        <ConnectWallet setWalletBalance={setWalletBalance} />
-        <PriceDisplay livePrice={livePrice} walletBalance={walletBalance} />
-        <TradeForm
-          entryPrice={entryPrice}
-          livePrice={livePrice}
-          leverage={leverage}
-          positionType={positionType}
-          onEntryPriceChange={setEntryPrice}
-          onLeverageChange={setLeverage}
-          onPositionTypeChange={(value: string) => setPositionType(value as PositionType)}
-          onCalculate={calculate}
-        />
+  <div className="page">
+    <div className="card">
+      <ConnectWallet />
+      <PriceDisplay livePrice={livePrice} walletBalance={walletBalance} />
+      <TradeForm
+        entryPrice={entryPrice}
+        livePrice={livePrice}
+        leverage={leverage}
+        positionType={positionType}
+        onEntryPriceChange={setEntryPrice}
+        onLeverageChange={setLeverage}
+        onPositionTypeChange={(value: string) => setPositionType(value as PositionType)}
+        onCalculate={calculate}
+      />
 
-        {liquidationPrice !== null && (
-          <div className="mt-4 text-green-600 font-semibold text-lg">
-            Liquidation Price: ${liquidationPrice.toFixed(2)}
-          </div>
-        )}
+      {liquidationPrice !== null && (
+        <div className="result green">
+          Liquidation Price: ${liquidationPrice.toFixed(2)}
+        </div>
+      )}
 
-        {positionSize !== null && (
-          <div className="mt-2 text-blue-600 font-semibold text-lg">
-            Position Size: {positionSize.toFixed(4)} BTC
-          </div>
-        )}
-      </div>
+      {positionSize !== null && (
+        <div className="result blue">
+          Position Size: {positionSize.toFixed(4)} BTC
+        </div>
+      )}
     </div>
-  );
+  </div>
+);
 }
