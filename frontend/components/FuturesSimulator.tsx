@@ -17,19 +17,20 @@ export default function FuturesSimulatorApp() {
   const [positionType, setPositionType] = useState<PositionType>("SHORT");
   const [liquidationPrice, setLiquidationPrice] = useState<number | null>(null);
   const [positionSize, setPositionSize] = useState<number | null>(null);
+  const [tradeAmount, setTradeAmount] = useState<number>(0.01); // user input ETH amount
 
   const calculate = async () => {
-    const wasm: any = await import("../public/wasm/trading_sim/trading_sim.js");
-    await wasm.default();
+  const wasm: any = await import("../public/wasm/trading_sim/trading_sim.js");
+  await wasm.default();
 
-    if (entryPrice !== null && leverage > 0) {
-      const liq = wasm.calculate_liquidation_price(entryPrice, leverage, positionType);
-      setLiquidationPrice(liq);
+  if (entryPrice !== null && leverage > 0 && tradeAmount > 0) {
+    const liq = wasm.calculate_liquidation_price(entryPrice, leverage, positionType);
+    setLiquidationPrice(liq);
 
-      const size = (walletBalance * leverage) / entryPrice;
-      setPositionSize(size);
-    }
-  };
+    const size = (tradeAmount * leverage) / entryPrice; // use user-defined margin
+    setPositionSize(size);
+  }
+};
 
   useEffect(() => {
     const fetchPrice = async () => {
@@ -60,6 +61,27 @@ export default function FuturesSimulatorApp() {
     <div className="card">
       <ConnectWallet />
       <PriceDisplay livePrice={livePrice} walletBalance={walletBalance} />
+
+      <div className="mb-4">
+        <label className="block font-medium text-sm text-gray-700">
+          Trade Amount (ETH):
+        </label>
+        <input
+          type="number"
+          value={tradeAmount}
+          onChange={(e) => setTradeAmount(parseFloat(e.target.value))}
+          min="0"
+          max={walletBalance}
+          step="0.001"
+          className="w-full p-2 mt-1 border rounded"
+        />
+        {tradeAmount > walletBalance && (
+          <p className="text-red-500 text-sm mt-1">
+            Amount exceeds wallet balance!
+          </p>
+        )}
+      </div>
+      
       <TradeForm
         entryPrice={entryPrice}
         livePrice={livePrice}
