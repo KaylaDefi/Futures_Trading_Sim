@@ -10,7 +10,7 @@ interface PriceDisplayProps {
           Futures Trading Simulator
         </h1>
         <p className="text-sm text-gray-500 mb-2">
-          Live Bitcoin (BTC) Price: {livePrice ? `$${livePrice.toLocaleString()}` : "Loading..."}
+          Live Ethereum Price (USD): {livePrice ? `$${livePrice.toLocaleString()}` : "Loading..."}
         </p>
         <p className="text-sm text-gray-700 mb-4">
           Wallet Balance (ETH): {walletBalance.toFixed(4)} ETH

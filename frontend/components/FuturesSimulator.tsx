@@ -20,15 +20,22 @@ export default function FuturesSimulatorApp() {
   const [tradeAmount, setTradeAmount] = useState<number>(0.01); // user input ETH amount
 
   const calculate = async () => {
-  const wasm: any = await import("../public/wasm/trading_sim/trading_sim.js");
-  await wasm.default();
+    const wasm: any = await import("../public/wasm/trading_sim/trading_sim.js");
+    await wasm.default();
 
-  if (entryPrice !== null && leverage > 0 && tradeAmount > 0) {
-    const liq = wasm.calculate_liquidation_price(entryPrice, leverage, positionType);
-    setLiquidationPrice(liq);
+    if (
+      entryPrice !== null &&
+      leverage > 0 &&
+      tradeAmount > 0 &&
+      tradeAmount <= walletBalance
+   ) {
+      const liq = wasm.calculate_liquidation_price(entryPrice, leverage, positionType);
+      setLiquidationPrice(liq);
 
-    const size = (tradeAmount * leverage) / entryPrice; // use user-defined margin
-    setPositionSize(size);
+      const size = tradeAmount * leverage
+      setPositionSize(size);
+  } else {
+    alert("Invalid input: Please check trade amount and leverage.");
   }
 };
 
@@ -38,10 +45,10 @@ export default function FuturesSimulatorApp() {
         const res = await fetch("/api/price");
         if (!res.ok) throw new Error(`HTTP error ${res.status}`);
         const data = await res.json();
-        const price = data.bitcoin.usd;
+        const price = data.ethereum.usd;
         setLivePrice((prev) => (prev !== price ? price : prev));
       } catch (err) {
-        console.error("Failed to fetch BTC price:", err);
+        console.error("Failed to fetch ETH price:", err);
       }
     };
 
@@ -81,7 +88,7 @@ export default function FuturesSimulatorApp() {
           </p>
         )}
       </div>
-      
+
       <TradeForm
         entryPrice={entryPrice}
         livePrice={livePrice}
@@ -101,7 +108,8 @@ export default function FuturesSimulatorApp() {
 
       {positionSize !== null && (
         <div className="result blue">
-          Position Size: {positionSize.toFixed(4)} BTC
+          Trade Amount: {tradeAmount} ETH<br />
+          Position Size: {positionSize.toFixed(4)} ETH
         </div>
       )}
     </div>
