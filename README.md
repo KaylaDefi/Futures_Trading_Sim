@@ -1,17 +1,43 @@
 Currently under development.
 
-A crypto futures trading simulator that calculates the liquidation price based on the user’s entry price, leverage, and position type (long or short). The core logic is written in Rust for speed and reliability, and it's compiled to WebAssembly (WASM) so it runs directly in the browser. My Next.js + TypeScript frontend loads the WASM module, takes user inputs, and displays the calculated liquidation price in real time.
+A crypto futures trading simulator where users can connect a wallet (MetaMask on testnet), specify a trade size, choose leverage and position type (long or short), and simulate entering and exiting trades. The simulator calculates liquidation price, position size, and realized PnL, giving users a realistic feel for perpetual futures trading — without risking real assets.
 
-Breakdown:
+🔧 Technologies
 
-Frontend: Next.js + React + Tailwind UI
+Frontend: Next.js + React (TypeScript)
 
-Core logic: Rust function that computes liquidation price
+Wallet Integration: MetaMask via ethers.js, with real-time balance and network detection
 
-Rust → WebAssembly: compiled using wasm-pack
+Core Logic: Rust (compiled to WebAssembly via wasm-pack)
 
-Runs in browser: WASM module is loaded dynamically, no server needed
+Context Management: React Context API for account and wallet state
 
-Liquidation logic: simple financial math (entry_price, leverage, maintenance margin)
+🧠 Key Features
 
-Reactivity: When user inputs change, React re-calculates and updates UI
+Connect/disconnect MetaMask wallet (testnet only)
+
+Fetch and display live ETH price
+
+Input trade amount, leverage, and position type
+
+Calculate liquidation price and position size using WASM
+
+Enter and exit positions manually
+
+Show real-time PnL (profit/loss) upon exiting trades
+
+💻 How It Works
+
+Rust handles all core calculations for speed and precision
+
+WASM loads dynamically in the browser — no backend required
+
+React state manages all user input and reactivity
+
+🚧 In Progress
+
+Improved UI for trade history and PnL tracking
+
+Multiple positions and cross-margin logic
+
+Testnet order simulation with on-chain confirmations
