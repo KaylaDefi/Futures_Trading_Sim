@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useAccount } from "../context/AccountContext";
 import ConnectWallet from "./ConnectWallet";
 import PriceDisplay from "./PriceDisplay";
 import TradeForm from "./TradeForm";
@@ -9,15 +8,31 @@ import { useWallet } from "context/WalletContext";
 
 type PositionType = "LONG" | "SHORT";
 
+declare global {
+  interface Window {
+    ethereum?: any;
+  }
+}
+
 export default function FuturesSimulatorApp() {
+  const { isConnected } = useWallet();
+  const walletBalance = 0; 
   const [entryPrice, setEntryPrice] = useState<number | null>(null);
   const [livePrice, setLivePrice] = useState<number | null>(null);
-  const [leverage, setLeverage] = useState(3);
-  const { balance: walletBalance } = useWallet(); 
+  const [leverage, setLeverage] = useState(3); useWallet(); 
   const [positionType, setPositionType] = useState<PositionType>("SHORT");
   const [liquidationPrice, setLiquidationPrice] = useState<number | null>(null);
   const [positionSize, setPositionSize] = useState<number | null>(null);
-  const [tradeAmount, setTradeAmount] = useState<number>(0.01); // user input ETH amount
+  const [tradeAmount, setTradeAmount] = useState<number>(0.01); 
+  const [openPosition, setOpenPosition] = useState<{
+    entryPrice: number;
+    leverage: number;
+    positionSize: number;
+    tradeAmount: number;
+    positionType: PositionType;
+    } | null>(null);
+  const [pnl, setPnl] = useState<number | null>(null);
+  const [enteredPosition, setEnteredPosition] = useState<boolean>(false);
 
   const calculate = async () => {
     const wasm: any = await import("../public/wasm/trading_sim/trading_sim.js");
@@ -28,16 +43,48 @@ export default function FuturesSimulatorApp() {
       leverage > 0 &&
       tradeAmount > 0 &&
       tradeAmount <= walletBalance
-   ) {
+    ) {
       const liq = wasm.calculate_liquidation_price(entryPrice, leverage, positionType);
       setLiquidationPrice(liq);
 
-      const size = tradeAmount * leverage
+      const size = (tradeAmount * leverage) / entryPrice;
       setPositionSize(size);
-  } else {
-    alert("Invalid input: Please check trade amount and leverage.");
-  }
-};
+    } else {
+      alert("Invalid input: Please check trade amount and leverage.");
+    }
+  };
+
+  const enterTrade = () => {
+    if (
+      entryPrice !== null &&
+      leverage > 0 &&
+      tradeAmount > 0 &&
+      positionSize !== null
+    ) {
+      setOpenPosition({
+        entryPrice,
+        leverage,
+        tradeAmount,
+        positionSize,
+        positionType,
+      });
+      setPnl(null); 
+    }
+  }; 
+
+  const exitTrade = () => {
+    if (!openPosition || livePrice === null) return;
+
+    const { entryPrice, positionSize, positionType } = openPosition;
+    const priceDiff =
+      positionType === "LONG"
+        ? livePrice - entryPrice
+        : entryPrice - livePrice;
+
+    const profit = priceDiff * positionSize;
+    setPnl(profit);
+    setOpenPosition(null); 
+  };
 
   useEffect(() => {
     const fetchPrice = async () => {
@@ -112,7 +159,35 @@ export default function FuturesSimulatorApp() {
           Position Size: {positionSize.toFixed(4)} ETH
         </div>
       )}
+
+      {openPosition === null && positionSize !== null && (
+          <button
+            onClick={enterTrade}
+            className="mt-4 bg-green-600 text-white font-semibold p-2 rounded hover:bg-green-700"
+          >
+            Enter Trade
+          </button>
+        )}
+
+        {openPosition !== null && (
+          <button
+            onClick={exitTrade}
+            className="mt-4 bg-red-600 text-white font-semibold p-2 rounded hover:bg-red-700"
+          >
+            Exit Trade
+          </button>
+        )}
+
+        {pnl !== null && (
+          <div
+            className={`mt-4 font-semibold text-lg ${
+              pnl >= 0 ? "text-green-600" : "text-red-600"
+            }`}
+          >
+            PnL: {pnl >= 0 ? "+" : "-"}{Math.abs(pnl).toFixed(4)} ETH
+          </div>
+        )}
+      </div>
     </div>
-  </div>
-);
+  );
 }

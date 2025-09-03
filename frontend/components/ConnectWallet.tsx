@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { useWallet } from "../context/WalletContext";
 
 const ConnectWallet: React.FC = () => {
@@ -12,6 +12,8 @@ const ConnectWallet: React.FC = () => {
     balance,
     network,
   } = useWallet();
+
+  const [showWalletOptions, setShowWalletOptions] = useState(false);
 
   const shorten = (addr: string) => addr.slice(0, 6) + "..." + addr.slice(-4);
 
@@ -34,12 +36,37 @@ const ConnectWallet: React.FC = () => {
           </button>
         </>
       ) : (
-        <button
-          onClick={connectWallet}
-          className="bg-purple-600 text-white font-semibold p-2 rounded hover:bg-purple-700"
-        >
-          Connect MetaMask
-        </button>
+        <>
+          {!showWalletOptions ? (
+            <button
+              onClick={() => setShowWalletOptions(true)}
+              className="bg-purple-600 text-white font-semibold p-2 rounded hover:bg-purple-700"
+            >
+              Connect Wallet
+            </button>
+          ) : (
+            <div className="space-y-2">
+              <button
+                onClick={() => connectWallet("MetaMask")}
+                className="bg-yellow-500 text-black font-semibold p-2 rounded hover:bg-yellow-600 w-full"
+              >
+                Connect MetaMask
+              </button>
+              <button
+                onClick={() => connectWallet("Phantom")}
+                className="bg-violet-600 text-white font-semibold p-2 rounded hover:bg-violet-700 w-full"
+              >
+                Connect Phantom
+              </button>
+              <button
+                onClick={() => setShowWalletOptions(false)}
+                className="text-sm underline text-gray-500"
+              >
+                Cancel
+              </button>
+            </div>
+          )}
+        </>
       )}
     </div>
   );
